@@ -1,30 +1,42 @@
 import { useState } from "react";
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
+import { StyleSheet, View, Button, TextInput, FlatList } from "react-native";
 
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 export default function App() {
-  const [enteredText, setEnteredText] = useState("");
-  const [courseGoals, setCourseGoals] = useState([]);
+  const [Goals, setGoals] = useState([]);
 
-  function goalInputHandler(event) {
-    setEnteredText(event);
-  }
-  function addGoalHandler() {
+  function addGoalHandler(enteredText) {
     console.log(enteredText);
-    setCourseGoals([...courseGoals, enteredText]);
+    setGoals((currentCourseGoals) => [
+      ...currentCourseGoals,
+      { text: enteredText, id: Math.random().toString() },
+    ]);
+  }
+  function deleteGoalHandler(id) {
+    console.log("DELETE");
+    setGoals((currentCourseGoals) => {
+      return currentCourseGoals.filter((goal) => goal.id != id);
+    });
   }
   return (
     <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="Your course goal"
-          onChange={goalInputHandler}
-        />
-        <Button title="Add Goal" onPress={addGoalHandler} />
-      </View>
-      <View>
-        <Text> List of goals...</Text>
-      </View>
+      <GoalInput onAddGoal={addGoalHandler} />
+      <FlatList
+        data={Goals}
+        renderItem={(item) => {
+          return (
+            <GoalItem
+              text={item.item.text}
+              id={item.item.id}
+              onDeleteItem={deleteGoalHandler}
+            />
+          );
+        }}
+        keyExtractor={(item, index) => {
+          return item.id;
+        }}
+      />
     </View>
   );
 }
@@ -36,11 +48,5 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  TextInput: {
-    borderWidth: 1,
-    borderColor: "#cccccc",
-    width: "80%",
-    spacing: 8,
   },
 });
